@@ -2,12 +2,19 @@
 A sundial which displays whatever you want, whenever you want, with only a
 3D-printed object.
 
-![The sundial](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_printed.jpg)
+![Sundial simulation](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/quick_simulation.png)
+
+![3D-printed part](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_printed.jpg)
+
+![shadow](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_shadow.jpg)
 
 ## About the original Digital Sundial
 
-This work inspirated by the Mojoptix project ([website][mojo_website],
-[Thingiverse](mojo_thingiverse)).
+This work is inspirated by the Mojoptix project
+([website](www.mojoptix.com/2015/10/25/mojoptix-001-digital-sundial),
+[Thingiverse](http://www.thingiverse.com/thing:1068443)).
+
+![Original project](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/original.jpg)
 
 > It's a Sundial displaying the time inside its shadow, with actual digits !
 > There is a tiny bit of magic inside...
@@ -23,7 +30,7 @@ This work inspirated by the Mojoptix project ([website][mojo_website],
 > (the magic box that displays time). So you can even adjust for Daylight
 > Saving Time.
 
-Its [video podcast](mojo_podcast) describes this sundial in details.
+Its [video podcast](www.mojoptix.com/2015/10/25/mojoptix-001-digital-sundial) describes this sundial in details.
 
 ## Customizable Digital Sundial
 
@@ -33,13 +40,15 @@ long as you want, and can contain all usual characters. In addition, you can
 customize a lot a others parameters, like the digits duration or the gnomon
 shape.
 
-See [the simulation](simulation) on Youtube for the [quick_fox.stl](quick_fox)
+See
+[the simulation](https://www.youtube.com/watch?v=YztbfwrANII&feature=youtu.be)
+on Youtube for the [quick_fox.stl](http://www.thingiverse.com/download:1956136)
 example.
 
 The attached STL files are not required, it's just few items made with the
 Customizer app to show you what you can do (see *Text* option bellow).
 
-## Available customizable options
+## Available Customizer options
 
 #### Main options
 
@@ -47,12 +56,12 @@ Customizer app to show you what you can do (see *Text* option bellow).
 separated by semi-colons. For example, if you want to display "Hello", then
 "world" few minutes later, set this field to `Hello;world`. Try with these
 ones:
-    - [quick_fox.stl](quick_fox):
+    - [quick_fox.stl](http://www.thingiverse.com/download:1956136):
       `The;quick;brown;fox;jumps;over;the;lazy;dog.`
-    - [clock.stl](clock):
+    - [clock.stl](http://www.thingiverse.com/download:1956139):
       `10:00;10:20;10:40;11:00;11:20;11:40;12:00;12:20;12:40;13:00;`
       `13:20;13:40;14:00;14:20;14:40;15:00;15:20;15:40;16:00`
-    - [numbers.stl](numbers):
+    - [numbers.stl](http://www.thingiverse.com/download:1956175):
       `0;1;2;3;4;5;6;7;8;9`
 - **Digits duration**: the duration of each text, according to the sun
 rotation.
@@ -98,7 +107,7 @@ download it;
 and check the digits on each position (then eventually re-customize it). Prefer
 an orthogonal view than a perspective view to watch the item;
 - print it with the settings bellow;
-- print the other pieces [from here](mojo_thingiverse);
+- print the other pieces [from here](www.thingiverse.com/thing:1068443);
 - Put them together and enjoy;
 - Please take a picture and share it on Thingiverse (by clicking on *I made
 one*). I am always so happy to see what people make with my work! :-)
@@ -127,14 +136,16 @@ Tested on a Up! Plus.
 
 The entire code is documented and easy to read and modify.
 
-See my [GitHub](github_repo) repository, it's easier to work from here and
-there is additional useful files (like Python and Blender scripts).
+See my [GitHub](https://github.com/roipoussiere/Customizable-Digital-Sundial)
+repository, it's easier to work from here and there is additional useful files
+(like Python and Blender scripts).
 
 #### OpenSCAD scripts
 For more readability, the .scad script is splitted in 3 files:
 *main*, *functions* and *fonts*.
 
-The *functions* file uses a part of my [OpenSCAD library](TOUL) for string and
+The *functions* file uses a part of my
+[OpenSCAD library](http://www.thingiverse.com/thing:202724) for string and
 vectors operations. Take a look.
 
 #### Python scripts
@@ -155,8 +166,10 @@ containing test parameters)
 
 #### Blender script
 This script allows you to simulate the sun shinning on the sundial.
-Watch [the video](simulation) of a simulation, rendered with it.
-Read [README](blender_readme) to know how to use it.
+Watch [the video](https://www.youtube.com/watch?v=YztbfwrANII&feature=youtu.be)
+of a simulation, rendered with it.
+Read
+[README](https://github.com/roipoussiere/Customizable-Digital-Sundial/tree/master/blender) to know how to use it.
 
 #### Known bugs
 If you compile a sundial with a lots of digits, it may be that you get CGal
@@ -172,14 +185,3 @@ Please send me issues and pull requests from GitHub!
 - any suggested feature! ;-)
 
 Please contact me for features or bug requests!
-
-[mojo_website]: www.mojoptix.com
-[mojo_thingiverse]: www.thingiverse.com/thing:1068443
-[mojo_podcast]: www.mojoptix.com/2015/10/25/mojoptix-001-digital-sundial
-[TOUL]: http://www.thingiverse.com/thing:202724
-[simulation]: https://www.youtube.com/watch?v=YztbfwrANII&feature=youtu.be
-[quick_fox]: http://www.thingiverse.com/download:1956136
-[clock]: http://www.thingiverse.com/download:1956139
-[numbers]: http://www.thingiverse.com/download:1956175
-[github_repo]: https://github.com/roipoussiere/Customizable-Digital-Sundial
-[blender_readme]: https://github.com/roipoussiere/Customizable-Digital-Sundial
