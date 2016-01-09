@@ -1,0 +1,11 @@
+[Parameters]
+STL_filename = sundial.stl
+STL_scale_x = 0.01
+STL_scale_y = 0.01
+STL_scale_z = 0.01
+STL_position_x = 0
+STL_position_y = 0
+STL_position_z = 0.1
+STL_rotation_x = 0
+STL_rotation_y = -45
+STL_rotation_z = 90

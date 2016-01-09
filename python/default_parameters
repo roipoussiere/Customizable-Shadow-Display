@@ -1,0 +1,16 @@
+text = "The;quick;brown;fox;jumps;over;the;lazy;dog."
+digit_duration = 20
+font = 0
+transition = 45
+hemisphere = 0
+gnomon_shape = 0
+holder = 1
+rod = 0
+gnomon_radius = 25
+pixel_width = 6
+pixel_height = 1
+space_between_columns = 1
+space_between_rows = 7.5
+space_between_digits = 3
+enlarge_slots = 2
+screw_size = 3

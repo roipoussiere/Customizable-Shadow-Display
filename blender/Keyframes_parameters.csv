@@ -1,0 +1,3 @@
+STL x,STL y,STL z,STL rot x,STL rot y,STL rot z,Camera x,Camera y,Camera z,Camera rot x,Camera rot y,Camera rot z,latitude,longitude,UTC zone,year,day of year,time,DST,frame number
+0,0,0,0,0,0,3,3,2,65,0,115,45,-120,8,2016,245,8,1,1
+0,0,0,0,0,0,3,3,2,65,0,115,45,-120,8,2016,245,17,1,400
