@@ -1,1 +1,9 @@
 customizable_digital_sundial.scad
+*.stl
+*.blend*
+*.png
+*.avi
+*.mpeg
+*.dvd
+misc/
+stl/

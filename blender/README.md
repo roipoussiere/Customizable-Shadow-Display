@@ -15,10 +15,11 @@
 - Then click on the calendar icon to display the days numbers;
 
 ## 4. Launching the script
+- Copy your .stl file into *[path_to_repository]/blender/* and name it *sundial.stl*;
 - Select the *Text editor* editor type, by clicking on the small icon on the bottom-left corner;
 - Click on the button *Text*, then *Open text block* then select the python script in the repository
-(*Customizable-Digital-Sundial/blender/sundial_simulator.py*);
-- Save your Blender scene where you want;
+(*[path_to_repository]/blender/sundial_simulator.py*);
+- Save your Blender scene in *[path_to_repository]/blender/*;
 - Click on *Run script*
 - You can eventually edit *Scene_parameters.txt* and *Keyframes_parameters.csv*
 to place correctly the sundial and the camera, then run the script again.

@@ -9,19 +9,20 @@ GitHub: https://github.com/roipoussiere/Customizable-Digital-Sundial*/
 
 /*** Customizer parameters ***/
 
+/*TODO: faire les trous + remove_thin_parts() en 2D (avec offset() ) pour optimiser les perfs*/
+/*TODO: un mot dans le readme (en haut) pour les warnings CGAL et les trous positifs*/
 /* [Main] */
 // preview[view:south west]
-/*TODO: blabalbla*/
 
 // For each positions, separated by ';'.
-text = "The;quicdfdfpok";
-/*NOTE: "1;2;3;4;5;6;7;8;9"*/
+text = "10:00;10:15;10:30;10:45;11:00;11:15;11:30;11:45;12:00;12:15;12:30;12:45;13:00;13:15;13:30;13:45;14:00;14:15;14:30;14:45;15:00;15:15;15:30;15:45;16:00";
+/*text="01;02;03;04;05;06;07;08;09";*/
 
 // In minutes
-digit_duration = 20; // [5:120]
+digit_duration = 15; // [5:120]
 
 // Used to display the digits.
-font = 0; // [0:ASCII (5x7),1:Numbers (4x6)]
+font = 1; // [0:ASCII (5x7),1:Numbers (4x6)]
 
 // Duration between each digits (in %).
 transition = 45; // [0:100]
@@ -37,9 +38,12 @@ holder = 1; // [1:Yes,0:No]
 // To hold pieces together with a rod.
 rod = 0; // [0:No, 1:2mm, 2:3mm, 3:4mm, 4:5mm]
 
+// Usually your slicer software do this. Take a very long time to process.
+remove_thin_parts = 0; // [0:Nope, 1:0.05mm, 2:0.10mm, 3:0.15mm, 4:0.20mm, 5:0.30mm]
+
 /* [Advanced] */
 
-gnomon_radius = 25; // [5:50]
+gnomon_radius = 30; // [5:50]
 pixel_width = 6; // [2:20]
 pixel_height = 1; // [0.5:5]
 space_between_columns = 1; // [0.5:5]
@@ -94,7 +98,7 @@ grid_width = sp_row * (nb_rows-1);
 surface_px_h = (100-transition)/100*holes_diam*3.1415 * digit_angle/(360*px_h);
 slots_factor = [1, 1.25, 1.5, 2, 2.5, 3][enlarge_slots];
 rod_diam = [0, 2, 3, 4, 5][rod] + 0.3;
-
+remove_box_size = [0, 0.05, 0.10, 0.15, 0.20, 0.30][remove_thin_parts];
 /* Positions */
 gnomon_center_y = (grid_width+4)/2 + px_h; // position of gnomon center
 pixel_pos_y = gnom_rad - grid_width/2; // y pos of the first pixel
@@ -116,15 +120,14 @@ holder_len = washer_dist + washer_thick + nut_thick + holder_dist;
 module holes() {
   // position of the first pixel
   t(x = px_w/2 - sp_char + sp_col, y = pixel_pos_y)
-
   // for each pixel, build a positive hole by extruding a square.
   for(i=[0:nb_col-1], j=[0:nb_rows-1], k=[0:nb_pos])
-    if(pixels[k][hemisphere ? nb_col-1-i : i][j] == 1) {
+    if(pixels[k][hemisphere==1 ? nb_col-1-i : i][j] == 1) {
       t(x = i * (px_w+sp_col) + sp_char*(ceil((i+1)/len(chars_fonts[font][0]))),
-            y = (hemisphere ? nb_rows-1-j : j) * sp_row) {
+            y = (hemisphere==1 ? nb_rows-1-j : j) * sp_row) {
         t(x=-sp_char) r(y=90)
           cylinder(d=px_h*slots_factor, h=px_w, $fn=10);
-        r(x = (nb_pos-k-0.5) * digit_angle - (90-(180-total_angle)/2) )
+        r(x = (nb_pos-0.5-k)*digit_angle - (90-(180-total_angle)/2) )
         t(z = holes_diam/4 - 0.5)
         linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
           square([px_w, px_h], center=true);
@@ -132,6 +135,16 @@ module holes() {
     }
 }
 
+module cleaned_holes() {
+  if(remove_thin_parts == 0) {
+    holes();
+  } else {
+    remove_thin_parts() {
+      holes();
+      cube([remove_box_size, remove_box_size, remove_box_size]);
+    }
+  }
+}
 // Build the holder
 module holder() {
   difference() {
@@ -202,5 +215,5 @@ module gnomon() {
     }
   }
 }
-
-difference() { gnomon(); holes(); }
+// rendering time pour CGAl double minkowski sur holes: 8m40
+difference() { gnomon(); cleaned_holes(); }
