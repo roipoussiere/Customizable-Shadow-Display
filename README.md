@@ -33,6 +33,8 @@ See [the simulation](https://www.youtube.com/watch?v=YztbfwrANII&feature=youtu.b
 
 The attached STL files are not required, it's just few items made with the Customizer app to show you what you can do (see *Text* option bellow).
 
+**Note:** When rendering the sundial, you may get CGal warnings saying there are a lot of elements. If you are using the Customizer app, just ignore them. If you are using OpenSCAD on you own computer, you can increase the value of parameters *Tun off rendering at* and *cache size* in the OpenSCAD preference window.
+
 ## Available Customizer options
 
 #### Main options
@@ -55,6 +57,7 @@ The attached STL files are not required, it's just few items made with the Custo
 
 #### Advanced parameters
 
+- **remove_thin_parts** : Remove parts smaller than the specified size. This option take a very long time to process, like few hours (because it calls 2 minkowski sums). It's better to use it in your computer (not with the Customizer app). Edit the .scad with your parameters, save it and make the stl file in command line : `openscad -o sundial.stl main.scad`. It will use the OpenCSG render engine, which is faster than the CGAL render for this use case.
 - **gnomon radius**
 - **pixel width**
 - **pixel height**
@@ -118,11 +121,6 @@ The *functions* file uses a part of my [OpenSCAD library](http://www.thingiverse
 This script allows you to simulate the sun shinning on the sundial. Watch [the video](https://www.youtube.com/watch?v=YztbfwrANII&feature=youtu.be) of a simulation, rendered with it.
 
 Read [README](https://github.com/roipoussiere/Customizable-Digital-Sundial/tree/master/blender) to know how to use it.
-
-#### Known bugs
-If you compile a sundial with a lots of digits, it may be that you get CGal warnings. You can increase the value of parameters *Tun off rendering at* and *cache size* in the OpenSCAD preference window.
-
-Please send me issues and pull requests from GitHub!
 
 ## To come
 
