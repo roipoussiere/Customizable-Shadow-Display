@@ -13,14 +13,13 @@
 # - replacing the <include> declarations by their contents (Customizer app
 # doesn't supports multiple .scad files.)
 
-
 from re import split
 from os.path import abspath, isfile
 
 SCAD_FOLDER = '.'
-MAIN_FILE = abspath(SCAD_FOLDER + '/' + 'sundial.scad')
+MAIN_FILE = abspath(SCAD_FOLDER + '/' + '_main.scad')
 PUSHED_MAIN_FILE = abspath(SCAD_FOLDER + '/' + 'main.scad')
-OUT_FILE = abspath(SCAD_FOLDER + '/' + 'customizable_digital_sundial.scad')
+OUT_FILE = abspath(SCAD_FOLDER + '/' + 'customizable_shadow_display.scad')
 PARAMETERS_FILE = abspath('./python/default_parameters')
 
 for f in [PARAMETERS_FILE, OUT_FILE, MAIN_FILE, PUSHED_MAIN_FILE]:

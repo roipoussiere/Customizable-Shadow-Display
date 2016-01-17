@@ -1,5 +1,5 @@
-customizable_digital_sundial.scad
-sundial.scad
+customizable_shadow_display.scad
+_main.scad
 *.stl
 *.blend*
 *.png

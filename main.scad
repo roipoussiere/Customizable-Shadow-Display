@@ -1,4 +1,4 @@
-/* *** CUSTOMISABLE DIGITAL SUNDIAL ***
+/* *** CUSTOMISABLE SHADOW DISPLAY ***
 
 Author: Nathanaël Jourdane
 Email: nathanael@jourdane.net

@@ -1,13 +1,13 @@
-# Customizable Digital Sundial
-A sundial which displays whatever you want, whenever you want, with only a 3D-printed object.
+# Customizable Shadow Display
+A digital display which displays whatever you want, whenever you want. No batteries, no motor, no electronics, only a 3D-printed object and its shadow.
 
-See the [GitHub repository](https://github.com/roipoussiere/Customizable-Digital-Sundial) and the [Thingiverse](http://www.thingiverse.com/thing:1253190) page.
+See the [GitHub repository](https://github.com/roipoussiere/Customizable-Shadow-Display) and the [Thingiverse](http://www.thingiverse.com/thing:1253190) page.
 
-![Sundial simulation](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/simulation.jpg)
+![Sundial simulation](https://raw.githubusercontent.com/roipoussiere/Customizable-Shadow-Display/master/images/simulation.jpg)
 
-![3D-printed part](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_printed.jpg)
+![3D-printed part](https://raw.githubusercontent.com/roipoussiere/Customizable-Shadow-Display/master/images/numbers_printed.jpg)
 
-![shadow](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_shadow.jpg)
+![shadow](https://raw.githubusercontent.com/roipoussiere/Customizable-Shadow-Display/master/images/numbers_shadow.jpg)
 
 ## About the original Digital Sundial
 
@@ -25,7 +25,7 @@ This work is inspirated by the Mojoptix project [Mojoptix project](http://www.th
 
 Its [video podcast](http://www.mojoptix.com/2015/10/25/mojoptix-001-digital-sundial) describes this sundial in details.
 
-## The customizable sundial
+## The customizable shadow display
 
 Contrary to the Mojoptix sundial, this one allows you to display, instead of the clock numbers, whatever and whenever you want. The displayed text can be as long as you want, and can contain all usual characters. In addition, you can customize a lot a others parameters, like the digits duration or the gnomon shape.
 
