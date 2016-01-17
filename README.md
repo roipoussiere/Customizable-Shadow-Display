@@ -99,9 +99,11 @@ Tested on a Up! Plus.
 
 ## GitHub repository
 
-The entire code is documented and easy to read and modify.
+Hi developers and hacker! Good news, the entire code is documented and easy to read and modify! It's hosted on [GitHub](https://github.com/roipoussiere/Customizable-Digital-Sundial). It's easier to work from here and there is additional useful files (like Python and Blender scripts).
 
-See the [GitHub repository](https://github.com/roipoussiere/Customizable-Digital-Sundial) , it's easier to work from here and there is additional useful files (like Python and Blender scripts).
+1. Make a copy of *main.scad* and name it *_main.scad*;
+2. Do whatever you want on this one. Personally, I prefer to work with an external IDE (like [Atom](https://atom.io/) and [this plugin](https://atom.io/packages/language-openscad)) and use OpenSCAD only to render the file;
+3. Open a terminal and type `python/clean_and_merge.py` before your commit (see *Python scripts* below).
 
 #### OpenSCAD scripts
 For more readability, the .scad script is splitted in 3 files: *main*, *functions* and *fonts*.
@@ -109,10 +111,12 @@ For more readability, the .scad script is splitted in 3 files: *main*, *function
 The *functions* file uses a part of my [OpenSCAD library](http://www.thingiverse.com/thing:202724) for string and vectors operations. Take a look.
 
 #### Python scripts
-- **merge.py**: Prepare the .scad file to be uploaded on Thingiverse:
-  - replace the parameters by the default parameters;
-  - replace the `<include>` declarations by their contents (Customizer app doesn't supports multiple .scad files.);
-  - remove lines containing `/*TODO` or `/*NOTE`.
+- **clean_and_merge.py**: Merge and clean the .scad files before to upload it on *Thingiverse* and *Github*:
+  1. Creates `PUSHED_MAIN_FILE`, a cleaned copy of `MAIN_FILE`, by:
+    - replacing the parameters by the default parameters specified in the *default_parameters* file;
+    - remove contents containing `NOTE` or `value=something`.
+  2. Creates `OUT_FILE`, containing all the .scad files, by:
+    - replacing the `<include>` declarations by their contents (Customizer app doesn't supports multiple .scad files.).
 - **compare.py**: Compare 2 .scad files representing a sundial. It slice the 3D-models in a given position, then generates a picture showing the 2 superposed slices.
 - **decode_font.py**: Decode an array of numbers in hexadecimal notation and print it as a decimal array, to you use it on OpenSCAD (which doesn't support hexadecimal notation).
 - **default_parameters**: a file containing default parameters, then you can modify them when you code without to be worried about publishing the file containing test parameters)
