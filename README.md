@@ -3,7 +3,7 @@ A sundial which displays whatever you want, whenever you want, with only a 3D-pr
 
 See the [GitHub repository](https://github.com/roipoussiere/Customizable-Digital-Sundial) and the [Thingiverse](http://www.thingiverse.com/thing:1253190) page.
 
-![Sundial simulation](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/quick_simulation.jpg)
+![Sundial simulation](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/simulation.jpg)
 
 ![3D-printed part](https://raw.githubusercontent.com/roipoussiere/Customizable-Digital-Sundial/master/images/numbers_printed.jpg)
 
