@@ -11,14 +11,16 @@ GitHub: https://github.com/roipoussiere/Customizable-Digital-Sundial*/
 // ** remove_thin_parts() { `object()`; `small_object()`; } **
 // Remove thin parts of an `object`, with a *corrosive* `small_object()`.
 module remove_thin_parts() {
-  reverse() minkowski() {
-    reverse() minkowski() { children(0); children(1); }
-    children(1);
+  render(convexity = 1) {
+    reverse() minkowski() {
+      reverse() minkowski() { children(0); children(1); }
+      children(1);
+    }
   }
 }
 
 // ** reverse() { `object()`; } **
-// Reverse an object. Solids became holes, holes became solids.
+// Reverse an object. Solids becames holes, holes becames solids.
 module reverse() {
   difference() {
     cube([1000, 1000, 1000], center=true);
