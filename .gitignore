@@ -1,4 +1,5 @@
 customizable_digital_sundial.scad
+sundial.scad
 *.stl
 *.blend*
 *.png
