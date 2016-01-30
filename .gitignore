@@ -1,9 +1,8 @@
 customizable_shadow_display.scad
 _main.scad
-frame*.png
+frame0*.png
 *.stl
 *.blend*
-*.png
 *.avi
 *.mpeg
 *.dvd
