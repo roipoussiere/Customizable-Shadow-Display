@@ -1,5 +1,6 @@
 customizable_shadow_display.scad
 _main.scad
+frame*.png
 *.stl
 *.blend*
 *.png

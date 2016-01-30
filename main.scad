@@ -9,13 +9,15 @@ GitHub: https://github.com/roipoussiere/Customizable-Digital-Sundial*/
 
 /*** Customizer parameters ***/
 
-
 /* [Main] */
+
+black_segments();
+debug();*/
 
 // preview[view:south west]
 
 // For each positions, separated by ';'.
-text = "The;quick;brown;fox;jumps;over;the;lazy;dog.";
+text="0;1;2;3;4;5;6;7;8;9";
 
 // In minutes
 digit_duration = 20; // [5:120]
@@ -25,6 +27,9 @@ font = 0; // [0:ASCII (5x7),1:Numbers (4x6)]
 
 // Duration between each digits (in %).
 transition = 45; // [0:100]
+
+// No transition between two successive pixels which remain lit.
+optimisation = 1; // [1:Yes,0:No]
 
 // Where are you ?
 hemisphere = 0;  // [0:Northen hemisphere, 1:Southen hemisphere]
@@ -37,8 +42,11 @@ holder = 1; // [1:Yes,0:No]
 // To hold pieces together with a rod.
 rod = 0; // [0:No, 1:2mm, 2:3mm, 3:4mm, 4:5mm]
 
+h_floor = 0.2;
 /* [Advanced] */
 
+// The minimum material deposit size.
+dist = 2; // [0.2:5]
 // Usually your slicer software do this. Take a very long time to process.
 remove_thin_parts = 0; // [0:Nope, 1:0.05mm, 2:0.10mm, 3:0.15mm, 4:0.20mm, 5:0.30mm]
 gnomon_radius = 25; // [5:50]
@@ -114,104 +122,213 @@ holder_len = washer_dist + washer_thick + nut_thick + holder_dist;
 
 /*** Modules to build the gnomon ***/
 
-// Build positive holes for each pixel. Need to be substracted from the gnomon.
-module holes() {
-  // position of the first pixel
-  t(x = px_w/2 - sp_char + sp_col, y = pixel_pos_y)
-  // for each pixel, build a positive hole by extruding a square.
-  for(i=[0:nb_col-1], j=[0:nb_rows-1], k=[0:nb_pos])
-    if(pixels[k][hemisphere==1 ? nb_col-1-i : i][j] == 1) {
-      t(x = i * (px_w+sp_col) + sp_char*(ceil((i+1)/len(chars_fonts[font][0]))),
-            y = (hemisphere==1 ? nb_rows-1-j : j) * sp_row) {
-        t(x=-sp_char) r(y=90)
-          cylinder(d=px_h*slots_factor, h=px_w, $fn=10);
-        r(x = (nb_pos-0.5-k)*digit_angle - (90-(180-total_angle)/2) )
-        t(z = holes_diam/4 - 0.5)
-        linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
-          square([px_w, px_h], center=true);
-      }
-    }
+/*
+Notations and data structures:
+- `p` is a vector [`x`, `y`], which represents a point,
+  where `x` is the horizontal position and `y` is the vertical position.
+- `seg` is a vector [`p1`, `p2`], where `p1` and `p2` are the extremities points of the segment (see `p`).
+- `d` is a vector [`a`, `b`], which represents a straight line
+  (considered with infinite length, but `line()` displays it from y=[-100;+100])
+  where y = `a`x + `b`.
+- `zone` is a vector [`d1, d2`], a couple of lines representing a zone.
+- `a` is a integer which represents an angle, in degrees.
+- `sunray` zone is where the sun go through.
+- `blackray` zone is where we need to block the sunrays by deposing material.
+*/
+
+// Writing these functions below turned my brain upside down during few nights.
+
+// Returns the point with its rectangular coordinates are [angle, radius].
+function polar2rect(a=0, r=1) =
+  [r*cos(a) , r*sin(a)];
+
+// Returns [angle, radius], the polar coordinates of `p`.
+function rect2polar(p) =
+  [atan(p[1]/p[0]), sqrt(pow(p[0], 2) + pow(p[1], 2))];
+
+// Returns the distance of `seg`.
+function distance(seg) =
+  sqrt(pow(seg[1][0]-seg[0][0], 2) + pow(seg[1][1]-seg[0][1], 2));
+
+// Returns the intersection point of `d1` and `d2`.
+function get_inter(d1, d2) =
+  [ (d2[1]-d1[1]) / (d1[0]-d2[0]) , (d1[0]*d2[1]-d1[1]*d2[0]) / (d1[0]-d2[0]) ];
+
+// Returns the line `d` passing through `seg`.
+function get_line(seg) =
+  [ (seg[1][1]-seg[0][1])/(seg[1][0]-seg[0][0]) ,
+  seg[0][1] - ((seg[1][1]-seg[0][1])/(seg[1][0]-seg[0][0]))*seg[0][0]];
+
+function get_x(line, y=0) = (y-line[1])/line[0];
+
+// Returns true if `d` intersects with `seg`, with a certain `tol`erence.
+function is_inter(d, seg, tol=0.1, inter=false) =
+  seg[0][0] > seg[1][0] ? is_inter(d, [seg[1], seg[0]], tol) :
+  !inter ? is_inter(d, seg, tol, get_inter(get_line(seg), d)[0]) :
+  inter - seg[0][0] > tol && seg[1][0] - inter > tol;
+
+// Returns a vector of [p1, p2, is_light], corresponding to each position.
+function get_rays(col, j=0, k=0, v=[], x_pos=false, a=false) =
+  j == nb_rows-1 +1 ? v : // end: returns the vector
+  k == nb_pos ? get_rays(col, j+1, 0, v) : // j loop
+  !x_pos && !a ? get_rays(col, j, k, v, // init x_pos and a
+    x_pos = (hemisphere==1 ? nb_rows-1-j : j) * sp_row + pixel_pos_y,
+    a = (nb_pos-0.5-k) * digit_angle + (180-total_angle)/2) :
+  get_rays(col, j, k+1, concat(v, [ [ tan(a) , -tan(a)*x_pos,
+    pixels[k][hemisphere==1 ? nb_col-1-col : col][j] == 1 ? true : false ]]) );
+
+// Rotate `d` with by the angle `a` from the point on the x-axis.
+function rot_line(d, a) =
+  [tan(atan(d[0])-a), d[1]*tan(atan(d[0])-a)/d[0]];
+
+// Returns a vector of zones corresponding to the sunrays
+function get_sunrays(rays, delta=false, i=0, v=[]) =
+  // if end of loop, returns the vector
+  i == len(rays) ? v :
+  // if delta uninitialized, initialize it.
+  !delta ? get_sunrays(rays, delta=(100-transition)/100 * digit_angle/2) :
+  // if blackray: do nothing, if sunray: append to v
+  get_sunrays(rays, delta, i+1,
+    !rays[i][2] ? v :
+    concat(v, [ [rot_line(rays[i], delta), rot_line(rays[i], -delta)] ]));
+
+// Returns a vector of zones corresponding to the blakrays.
+// These zones are merged if they are side by side.
+function get_blackrays(rays, delta=false, left = false, i=0, v=[]) =
+  // if end of loop, returns the vector.
+  i == len(rays) ? v :
+  // if delta uninitialized, initialize it.
+  !delta ? get_blackrays(rays, delta=(1+transition/100) * digit_angle/2) :
+  // else if blackray and (next is sunray or actual is last), append.
+  !rays[i][2] && (rays[i+1][2] || i%nb_pos == nb_pos-1) ?
+    get_blackrays(rays, delta, false, i+1, concat(v,[ [rot_line(rays[i], delta),
+    rot_line(rays[left == false ? i : left], -delta)] ])) :
+  // else if is blackray and next is blackray and left is empty, save left.
+  !rays[i][2] && !rays[i+1][2] && left == false ?
+    get_blackrays(rays, delta, i, i+1, v) :
+  // else, do nothing.
+  get_blackrays(rays, delta, left, i+1, v);
+
+// Returns a vector of segments which makes a *floor* of blocks.
+function get_floor(rays, delta=false, i=0, v=[]) =
+  i==len(rays)-1 ? // end of loop
+    concat(v, [[ [get_x(rot_line(rays[i], delta), h_floor), h_floor] ,
+    [get_x(rot_line(rays[i], delta), 0)+sp_row, h_floor] ]]) :
+  // init delta
+  !delta ? get_floor(rays, delta=(100-transition)/100 * digit_angle/2) :
+  i==0 ? // first pos
+    get_floor(rays, delta, i+1,
+    concat(v, [[ [get_x(rot_line(rays[i], -delta), 0)-sp_row, h_floor] ,
+    [get_x(rot_line(rays[i], -delta), h_floor), h_floor] ]])) :
+  i%nb_pos == 0 ? // if last pos of the pixel
+    get_floor(rays, delta, i+1,
+    concat(v, [[ [get_x(rot_line(rays[i-1], delta), h_floor), h_floor] ,
+    [get_x(rot_line(rays[i], -delta), h_floor), h_floor] ]])) :
+  get_floor(rays, delta, i+1, v);
+
+// Returns a vector of segments where to deposit material to display the shadow.
+function get_blocks(column, rays=false, blackrays=false, sunrays=false, h_seg=false, bad_sunray=0, i=0, v=[]) =
+  // if end of loop, append floor and returns v
+  i==len(blackrays) ? concat(v, get_floor(rays)) :
+  !rays ? get_blocks(column, get_rays(column)) : // init rays
+  // init blackrays and sunrays
+  !blackrays ? get_blocks(column, rays, get_blackrays(rays), get_sunrays(rays)):
+  // init h_seg each loop
+  !h_seg ? get_blocks(column, rays, blackrays, sunrays,
+    get_sunray_h_block(blackrays[i], dist), 0, i, v):
+  // init bad_sunray each loop
+  bad_sunray==0 ? get_blocks(column, rays, blackrays, sunrays, h_seg,
+  is_inter_sunrays(h_seg, sunrays, 0.1), i, v):
+  // then process black segment
+  get_blocks(column, rays, blackrays, sunrays, false, 0, i+1, concat(v,
+    [bad_sunray != false ?
+    [get_inter(bad_sunray, blackrays[i][0]) ,
+     get_inter(bad_sunray, blackrays[i][1])] : h_seg]));
+
+// Returns a horizontal segment passing through the `zone` and measuring dist.
+function get_sunray_h_block(zone, dist, y=false) =
+  zone[0][0] == zone[1][0] ? false :
+  !y ? get_sunray_h_block(zone, dist,
+    y = (dist*zone[0][0]*zone[1][0] - zone[0][0]*zone[1][1] +
+      zone[0][1]*zone[1][0]) / (zone[1][0] - zone[0][0]) ) :
+  [ [(y-zone[1][1])/zone[1][0] , y] , [(y-zone[0][1])/zone[0][0] , y] ];
+
+// Returs the line where `seg` intersects with the sunray `zone`, or false if
+// `seg` doesn't intersect with any sunray.
+function is_inter_sunrays(seg, sunrays, tol, i=0) =
+  i == len(sunrays) ? false :
+  is_inter(sunrays[i][0], seg, tol) ? sunrays[i][0] :
+  is_inter(sunrays[i][1], seg, tol) ? sunrays[i][1] :
+  is_inter_sunrays(seg, sunrays, tol, i+1);
+
+// Translates `p`
+function tr(p, x=0, y=0) = [p[0]+x, p[1]+y];
+
+// *** Debuging modules ***
+
+// Draw the point `p` on the RIGHT view.
+module dot(p, type="cross", col="Black", size=1, lvl=0) {
+  if(type=="square") {
+    t(x=p[0], y=p[1], z=lvl) color(col) square([size, size], center=true);
+  } else if (type == "lines") {
+    segment([-99, p[1]], [99, p[1]], thkn=size);
+    segment([p[0], -99], [p[0], 99], thkn=size);
+  } else if (type == "cross") {
+    segment([p[0]-size, p[1]], [p[0]+size, p[1]], col, size);
+    segment([p[0], p[1]-size], [p[0], p[1]+size], col, size);
+  }
 }
 
-module cleaned_holes() {
-  if(remove_thin_parts == 0) {
-    holes();
-  } else {
-    remove_thin_parts() {
-      holes();
-      cube([remove_box_size, remove_box_size, remove_box_size]);
+// Draw the segment `seg` on the RIGHT view.
+module segment(seg, col="Black", thkn = 1, lvl=0) {
+  length = distance(seg);
+  t(x=seg[0][0], y=seg[0][1], z=lvl)
+  r(z=(seg[1][0]>=seg[0][0] ? -90 : 90)
+    + atan( (seg[1][1]-seg[0][1]) / (seg[1][0]-seg[0][0]) ))
+  t(y=length/2) color(col) square([thkn/5, length], center=true);
+}
+
+function line2seg(d) =
+  d[0] == 0 ? [[0, d[1]] , [99, d[1]]] :
+  [[(-d[1])/d[0], 0] , [(99-d[1])/d[0], 99]];
+
+// Draw the line `d` on the RIGHT view.
+module line(d, col="Black", thkn=1, lvl=0) {
+  segment(line2seg(d), col, thkn, lvl);
+}
+
+// Draw the `zone` on the RIGHT view.
+module draw_zone(zone, lvl=0) {
+  line(zone[0], "Gray", lvl=lvl);
+  line(zone[1], "Gray", lvl=lvl);
+  t(z=lvl) polygon(points=
+    [line2seg(zone[0])[0], line2seg(zone[0])[1],
+    line2seg(zone[1])[1], line2seg(zone[1])[0]]);
+}
+
+
+/*changer get_blocks() en get_black_segs et créer get_black_polygons()*/
+module black_segments() {
+  for(i = [0:nb_col-1]) {
+    t(z=i*5) linear_extrude(height=5) {
+      for(seg=get_blocks(i)) { segment(seg); }
     }
   }
 }
-// Build the holder
-module holder() {
-  difference() {
-    t(x=-holder_len, y=gnomon_center_y, z=washer_diam/2) r(y=90)
-      cylinder(d=washer_diam+2*diam_dist, h=holder_len, $fn=30);
-    union() {
-      t(x=-holder_len, z=-10)
-        cube([holder_len, grid_width+4, 10]);
 
-      t(x=-holder_dist, y=gnomon_center_y, z=-0.1) {
-        t(x=-nut_thick, y=-nut_width/2)
-          cube([nut_thick, nut_width, washer_diam/2]);
-        t(x=-nut_thick, z=washer_diam/2) r(y=90)
-          cylinder(d=(nut_width)*1.14, h=nut_thick, $fn=6);
+// Draw sunray zones, blackray zones and processed material segments, on the
+// RIGHT view, in a OpenScad animation
+module debug() {
+  column = $t*nb_col;
+  /*columns = 1;*/
+  echo(str("Select animation view, then set FPS to *1* and Steps to *",
+  $t*nb_col, "*."));
+  rays = get_rays(column);
+  sunrays = get_sunrays(rays);
+  blackrays = get_blackrays(rays);
 
-        t(x=-nut_thick-washer_thick, y=-washer_diam/2)
-          cube([washer_thick, washer_diam, washer_diam/2]);
-        t(x=-nut_thick-washer_thick, z=washer_diam/2) r(y=90)
-          cylinder(d=washer_diam, h=washer_thick, $fn=50);
-
-        t(x=-nut_thick-washer_thick-washer_dist-1, z=washer_diam/2) r(y=90)
-          cylinder(d=screw_diam, h=washer_dist+1, $fn=30);
-      }
-    }
-  }
-
+  for(ray=blackrays) { %draw_zone(ray, lvl=0); }
+  for(ray=sunrays)   { #draw_zone(ray, lvl=1); }
+  for(segment=get_blocks(column)) { segment(segment, "Blue", lvl=2); }
+  t(y=-4) color("Black") text(str("col. ", $t*nb_col+1), size=3);
 }
-
-// Build the half of the gnomon.
-module half_gnomon() {
-t(y=-gnom_rad)
-  intersection() {
-    t(y=pixel_pos_y) r(y=90)
-      cylinder(r=gnom_rad, h=gnom_len, $fn=100);
-    union() {
-      t(y=pixel_pos_y-2) r(x=(90-(180-total_angle)/2))
-        cube([gnom_len, gnom_rad*2, gnom_rad*2]);
-      if (rod !=0 ) t(y=-rod_diam*0.63) difference() {
-        union() {
-          cube([gnom_len, rod_diam+3, rod_diam+3]);
-          t(z=(rod_diam+3)/2) r(y=90)
-            cylinder(d=rod_diam+3, h=gnom_len, $fn=20);
-        }
-        t(z=(rod_diam+3)/2) r(y=90)
-          cylinder(d=rod_diam, h=gnom_len, $fn=20);
-      }
-    }
-  }
-}
-
-// Build the basic shape of the gnomon, without the holes.
-module gnomon() {
-  if(holder)
-    holder();
-  if(gnomon_shape == 0) { // boat shape
-    t(y=gnom_rad) {
-      half_gnomon();
-      mirror([0,1,0]) half_gnomon();
-    }
-  t(y=pixel_pos_y-2)
-    cube([gnom_len, grid_width+4, gnom_rad]);
-  } else { // half-cylinder shape
-    t(y=(-5))
-    intersection() {
-      cube([gnom_len, (gnom_rad+5)*2, gnom_rad+5]);
-      r(90, 0, 90) t(gnom_rad+5, 0, 0)
-        cylinder(r=gnom_rad+5, h=gnom_len, $fn=100);
-    }
-  }
-}
-
-difference() { gnomon(); cleaned_holes(); }
