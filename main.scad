@@ -51,10 +51,10 @@ space_between_digits = 3; // [1:10]
 enlarge_slots = 2; // [0: No, 1: XS (x1.25), 2:S (x1.5), 3: M(x2), 4: L (x2.5), 5: XL (x3)]
 screw_size = 3; // [0:M3, 1:M4, 2:M5, 3:M6, 4:M8, 5:M10]
 
- +
- +// Optimization.
- +optimization = 1; // [1:Yes,0:No]
- +
+ 
+ // Optimization.
+ optimization = 1; // [1:Yes,0:No]
+ 
 
 /*** Fonts ***/
 include <fonts.scad>
@@ -122,32 +122,32 @@ holder_len = washer_dist + washer_thick + nut_thick + holder_dist;
 // Build positive holes for each pixel. Need to be substracted from the gnomon.
 module holes() {
   // position of the first pixel
- +  t(x = px_w/2 - sp_char + sp_col, y = pixel_pos_y) {
- +
- +// for each pixel, build a positive hole by extruding a square.
- +  for(i=[0:nb_col-1], j=[0:nb_rows-1], k=[0:nb_pos])
- +    if(pixels[k][hemisphere ? nb_col-1-i : i][j] == 1) {
- +      t(x = i * (px_w+sp_col) + sp_char*(ceil((i+1)/len(chars_fonts[font][0]))),
- +            y = (hemisphere ? nb_rows-1-j : j) * sp_row) {
- +        t(x=-sp_char) r(y=90)
- +          cylinder(d=px_h*slots_factor, h=px_w, $fn=10);
- +        r(x = (nb_pos-k-0.5) * digit_angle - (90-(180-total_angle)/2) ) {
- +			t(z = holes_diam/4 - 0.5)
- +			linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
- +				square([px_w, px_h], center=true);
- +//Optimization by Margu
- +			if ((optimization==1) && (k<nb_pos) && (pixels[k+1][hemisphere ? nb_col-1-i : i][j] == 1)) {
- +				r(x = (-0.5) * digit_angle )
- +				t(z = holes_diam/4 - 0.5)
- +				linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
- +				  square([px_w, px_h], center=true);
- +			}
- +//End of Optimization by Margu
- +		}
- +	  }	
- +    }
- +  }
- +}
+   t(x = px_w/2 - sp_char + sp_col, y = pixel_pos_y) {
+ 
+ // for each pixel, build a positive hole by extruding a square.
+   for(i=[0:nb_col-1], j=[0:nb_rows-1], k=[0:nb_pos])
+     if(pixels[k][hemisphere ? nb_col-1-i : i][j] == 1) {
+       t(x = i * (px_w+sp_col) + sp_char*(ceil((i+1)/len(chars_fonts[font][0]))),
+             y = (hemisphere ? nb_rows-1-j : j) * sp_row) {
+         t(x=-sp_char) r(y=90)
+           cylinder(d=px_h*slots_factor, h=px_w, $fn=10);
+         r(x = (nb_pos-k-0.5) * digit_angle - (90-(180-total_angle)/2) ) {
+ 			t(z = holes_diam/4 - 0.5)
+ 			linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
+ 				square([px_w, px_h], center=true);
+ //Optimization by Margu
+ 			if ((optimization==1) && (k<nb_pos) && (pixels[k+1][hemisphere ? nb_col-1-i : i][j] == 1)) {
+ 				r(x = (-0.5) * digit_angle )
+ 				t(z = holes_diam/4 - 0.5)
+ 				linear_extrude(height=holes_diam/2, scale=[1,surface_px_h], center=true)
+ 				  square([px_w, px_h], center=true);
+ 			}
+ //End of Optimization by Margu
+ 		}
+ 	  }	
+     }
+   }
+ }
 
 module cleaned_holes() {
   if(remove_thin_parts == 0) {
